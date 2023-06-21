@@ -6,6 +6,9 @@ from autodqm.plugin_results import PluginResults
 import scipy.stats as stats
 from scipy.special import gammaln
 import plotly.graph_objects as go
+import base64
+import time
+#import plotly.plotly as py
 from plotly.subplots import make_subplots
 from plugins.pullvals import normalize_rows
 
@@ -14,6 +17,7 @@ def comparators():
         'beta_binomial' : beta_binomial
     }
 
+start0 = time.time()
 def beta_binomial(histpair, pull_cap=15, chi2_cut=10, pull_cut=10, min_entries=1, tol=0.01, norm_type='all', **kwargs):
     """beta_binomial works on both 1D and 2D"""
     data_hist_orig = histpair.data_hist
@@ -147,7 +151,7 @@ def beta_binomial(histpair, pull_cap=15, chi2_cut=10, pull_cut=10, min_entries=1
             yAxisTitle = data_hist_orig.axes[1]._bases[0]._members["fTitle"]
         else:
             yAxisTitle = ""
-        plotTitle = histpair.data_name + " beta-binomial  |  data:" + str(histpair.data_run) + " & ref:" + ref_runs_str
+        plotTitle = histpair.data_name + " beta-binomial  |  data: " + str(histpair.data_run) + " & ref: " + ref_runs_str + " AutoDQM "
     
         #Plotly doesn't support #circ, #theta, #phi but it does support unicode
         xAxisTitle = xAxisTitle.replace("#circ", "\u00B0").replace("#theta","\u03B8").replace("#phi","\u03C6").replace("#eta","\u03B7")
@@ -178,7 +182,6 @@ def beta_binomial(histpair, pull_cap=15, chi2_cut=10, pull_cut=10, min_entries=1
         c.add_trace( go.Scatter(name="Pull", x=x_bins, y=pull_hist, marker_color='green',
                                 mode='markers', marker_size=[abs(p) for p in pull_hist],
                                 marker_symbol='x', marker_line_width=0), secondary_y=True)
-
         c.update_layout(bargap=0, bargroupgap=0, barmode='overlay', plot_bgcolor='white', legend_itemsizing='constant')
         c.update_xaxes(showline=True, linewidth=2, linecolor='black', mirror=True, showgrid=False, title_text=xAxisTitle)
         c.update_yaxes(showline=True, linewidth=2, linecolor='black', mirror=True, showgrid=False, title_text=yAxisTitle, secondary_y=False)
@@ -200,7 +203,6 @@ def beta_binomial(histpair, pull_cap=15, chi2_cut=10, pull_cut=10, min_entries=1
         )
         ref_text = "ref:"+ref_runs_str
         data_text = "data:"+str(histpair.data_run)
-
     ## --------- end 1D plotting ---------
 
 
@@ -248,7 +250,7 @@ def beta_binomial(histpair, pull_cap=15, chi2_cut=10, pull_cut=10, min_entries=1
         #Getting Plot Titles for histogram, x-axis and y-axis
         xAxisTitle = data_hist_orig.axes[0]._bases[0]._members["fTitle"]
         yAxisTitle = data_hist_orig.axes[1]._bases[0]._members["fTitle"]
-        plotTitle = histpair.data_name + " beta-binomial  |  data:" + str(histpair.data_run) + " & ref:" + ref_runs_str
+        plotTitle = histpair.data_name + " beta-binomial  |  data:" + str(histpair.data_run) + " & ref:" + ref_runs_str 
 
         #Repeat labels for concatenated histograms
         if do_concat:
@@ -303,7 +305,8 @@ def beta_binomial(histpair, pull_cap=15, chi2_cut=10, pull_cut=10, min_entries=1
         show=bool(is_outlier),
         info=info,
         artifacts=artifacts)
-
+end0 = time.time()
+print(end0 - start0)
 
 def pull(D_raw, R_list_raw, tol=0.01):
     nRef = len(R_list_raw)

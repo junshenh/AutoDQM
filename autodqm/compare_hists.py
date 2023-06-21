@@ -10,7 +10,8 @@ from autodqm import cfg
 from autodqm.histpair import HistPair
 import plotly
 import numpy as np
-
+import multiprocessing as mp
+import time
 
 def process(chunk_index, chunk_size, config_dir,
             dqmSource, subsystem,
@@ -82,6 +83,10 @@ def process(chunk_index, chunk_size, config_dir,
             hist_outputs.append(info)
 
     return hist_outputs
+
+    args1 = [(x, comparator_funcs) for x in histpairs]
+    pool = mp.Pool(mp.cpu_count())
+    hist_outputs = pool.map(process, args1)
 
 def compile_histpairs(chunk_index, chunk_size, config_dir,
                       dqmSource, subsystem,
@@ -209,7 +214,6 @@ def load_comparators(plugin_dir):
         comparators.update(new_comps)
 
     return comparators
-
 
 def identifier(hp, comparator_name):
     """Return a `hashed` identifier for the histpair"""
