@@ -33,61 +33,61 @@ def process(chunk_index, chunk_size, config_dir,
     hist_outputs = []
 
     comparator_funcs = load_comparators(plugin_dir)
-
-    for hp in histpairs:
-        comparators = []
-        for c in hp.comparators:
-            try:
-                comparators.append((c, comparator_funcs[c]))
-            except:
-                raise error("Comparator {} was not found in {}/{}.".format(c, dqmSource, subsystem))
-
-        for comp_name, comparator in comparators:
-            result_id = identifier(hp, comp_name)
-            pdf_path = '{}/pdfs/{}.pdf'.format(output_dir, result_id)
-            json_path = '{}/jsons/{}.json'.format(output_dir, result_id)
-            png_path = '{}/pngs/{}.png'.format(output_dir, result_id)
-
-            if not os.path.isfile(json_path):
-                results = comparator(hp, **hp.config)
-
-                # Continue if no results
-                if not results:
-                    continue
-
-                # Make pdf
-                results.canvas.write_image(pdf_path)
-
-                # Make png
-                subprocess.Popen(
-                    ['convert', '-density', '50', '-trim', '-fuzz', '1%', pdf_path, png_path])
-
-                # Make json
-                info = {
-                    'id': result_id,
-                    'name': hp.data_name,
-                    'comparator': comp_name,
-                    'display': results.show or hp.config.get('always_show', False),
-                    'config': hp.config,
-                    'results': results.info,
-                    'pdf_path': pdf_path,
-                    'json_path': json_path,
-                    'png_path': png_path,
-                }
-                with open(json_path, 'w') as jf:
-                    json.dump(info, jf)
-            else:
-                with open(json_path) as jf:
-                    info = json.load(jf)
-            
-            hist_outputs.append(info)
+    
+    args1 = [(x, comparator_funcs, output_dir) for x in histpairs]
+    pool = mp.Pool(mp.cpu_count())
+    hist_outputs = pool.map(get_hists_outputs, args1)
 
     return hist_outputs
 
-    args1 = [(x, comparator_funcs) for x in histpairs]
-    pool = mp.Pool(mp.cpu_count())
-    hist_outputs = pool.map(process, args1)
+def get_hists_outputs(histpair_comp):
+    hp = histpair_comp[0]
+    comparator_funcs = histpair_comp[1]
+    output_dir = histpair_comp[2]
+    try:
+        comparators = [(c, comparator_funcs[c]) for c in hp.comparators]
+    except:
+        raise error("Comparator {} was not found in {}/{}.".format(c, dqmSource, subsystem))
 
+    for comp_name, comparator in comparators:
+        result_id = identifier(hp, comp_name)
+        pdf_path = '{}/pdfs/{}.pdf'.format(output_dir, result_id)
+        json_path = '{}/jsons/{}.json'.format(output_dir, result_id)
+        png_path = '{}/pngs/{}.png'.format(output_dir, result_id)
+        
+
+        if not os.path.isfile(json_path):
+            results = comparator(hp, **hp.config)
+            # Continue if no results
+            if not results:
+                continue
+
+            # Make pdf
+            results.canvas.write_image(pdf_path)
+            
+            # Make png
+            subprocess.Popen(
+                ['convert', '-density', '50', '-trim', '-fuzz', '1%', pdf_path, png_path])
+            
+            # Make json
+            info = {
+                'id': result_id,
+                'name': hp.data_name,
+                'comparator': comp_name,
+                'display': results.show or hp.config.get('always_show', False),
+                'config': hp.config,
+                'results': results.info,
+                'pdf_path': pdf_path,
+                'json_path': json_path,
+                'png_path': png_path,
+            }
+            with open(json_path, 'w') as jf:
+                json.dump(info, jf)
+        else:
+            with open(json_path) as jf:
+                info = json.load(jf)
+    return info
+    
 def compile_histpairs(chunk_index, chunk_size, config_dir,
                       dqmSource, subsystem,
                       data_series, data_sample, data_run, data_path,
