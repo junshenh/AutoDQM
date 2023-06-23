@@ -110,10 +110,13 @@ def process(chunk_index, chunk_size,
     def relativize(p): return os.path.join(
         SITE_BASENAME + '/results', os.path.relpath(p, results_dir))
     for r in results:
-        r['pdf_path'] = relativize(r['pdf_path'])
-        r['json_path'] = relativize(r['json_path'])
-        r['png_path'] = relativize(r['png_path'])
-
+        if not r:
+            results.remove(r)
+        else:
+            r['pdf_path'] = relativize(r['pdf_path'])
+            r['json_path'] = relativize(r['json_path'])
+            r['png_path'] = relativize(r['png_path'])
+            
     new_chunk_index = chunk_index + chunk_size;
     if(len(results) == 0):
         new_chunk_index = -1;

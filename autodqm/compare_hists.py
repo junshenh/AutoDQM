@@ -10,8 +10,8 @@ from autodqm import cfg
 from autodqm.histpair import HistPair
 import plotly
 import numpy as np
+import threading
 import multiprocessing as mp
-import time
 
 def process(chunk_index, chunk_size, config_dir,
             dqmSource, subsystem,
@@ -35,7 +35,7 @@ def process(chunk_index, chunk_size, config_dir,
     comparator_funcs = load_comparators(plugin_dir)
     
     args1 = [(x, comparator_funcs, output_dir) for x in histpairs]
-    pool = mp.Pool(mp.cpu_count())
+    pool = mp.Pool(4)
     hist_outputs = pool.map(get_hists_outputs, args1)
 
     return hist_outputs
@@ -54,8 +54,8 @@ def get_hists_outputs(histpair_comp):
         pdf_path = '{}/pdfs/{}.pdf'.format(output_dir, result_id)
         json_path = '{}/jsons/{}.json'.format(output_dir, result_id)
         png_path = '{}/pngs/{}.png'.format(output_dir, result_id)
-        
 
+        info = None
         if not os.path.isfile(json_path):
             results = comparator(hp, **hp.config)
             # Continue if no results
@@ -85,9 +85,9 @@ def get_hists_outputs(histpair_comp):
                 json.dump(info, jf)
         else:
             with open(json_path) as jf:
-                info = json.load(jf)
+                info = json.load(jf) 
     return info
-    
+     
 def compile_histpairs(chunk_index, chunk_size, config_dir,
                       dqmSource, subsystem,
                       data_series, data_sample, data_run, data_path,

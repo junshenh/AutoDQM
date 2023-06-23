@@ -7,8 +7,6 @@ import scipy.stats as stats
 from scipy.special import gammaln
 import plotly.graph_objects as go
 import base64
-import time
-#import plotly.plotly as py
 from plotly.subplots import make_subplots
 from plugins.pullvals import normalize_rows
 
@@ -17,7 +15,6 @@ def comparators():
         'beta_binomial' : beta_binomial
     }
 
-start0 = time.time()
 def beta_binomial(histpair, pull_cap=15, chi2_cut=10, pull_cut=10, min_entries=1, tol=0.01, norm_type='all', **kwargs):
     """beta_binomial works on both 1D and 2D"""
     data_hist_orig = histpair.data_hist
@@ -305,8 +302,6 @@ def beta_binomial(histpair, pull_cap=15, chi2_cut=10, pull_cut=10, min_entries=1
         show=bool(is_outlier),
         info=info,
         artifacts=artifacts)
-end0 = time.time()
-print(end0 - start0)
 
 def pull(D_raw, R_list_raw, tol=0.01):
     nRef = len(R_list_raw)

@@ -12,7 +12,6 @@ from glob import glob
 from tqdm import tqdm
 from autodqm.dqm import DQMSession
 from autodqm.compare_hists import process
-import time
 
 
 def autodqm_offline(dqmSource, subsystem,
@@ -45,12 +44,10 @@ def autodqm_offline(dqmSource, subsystem,
             ref_paths.append( get_run(dqm, dqmSource, subsystem, ref_series, ref_sample, ref_run) )
 
     print("\nProcessing results...")
-    start = time.time()
     results = process(0, 9999, cfg_dir, dqmSource, subsystem,
                       data_series, data_sample, data_run, data_path,
                       ref_series, ref_sample, ref_runs.split('_'), ref_paths,
                       output_dir=output_dir, plugin_dir=plugin_dir)
-    print('time: ', time.time() - start)
     print("\nResults available in {}".format(output_dir))
     return results
 
