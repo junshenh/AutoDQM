@@ -106,22 +106,26 @@ def process(chunk_index, chunk_size,
                                     output_dir=results_dir,
                                     plugin_dir=plugin_dir)
 
+    
     # Relativize the results paths
-    def relativize(p): return os.path.join(
+    def relativize(p):
+        return os.path.join(
         SITE_BASENAME + '/results', os.path.relpath(p, results_dir))
-    for r in results:
-        if not r:
-            results.remove(r)
-        else:
+
+    # add only non empty results to send to front end
+    results_trunc = []
+    for i,r in enumerate(results):
+        if r: 
             r['pdf_path'] = relativize(r['pdf_path'])
             r['json_path'] = relativize(r['json_path'])
             r['png_path'] = relativize(r['png_path'])
-            
+            results_trunc.append(r)
+    
     new_chunk_index = chunk_index + chunk_size;
     if(len(results) == 0):
         new_chunk_index = -1;
-
-    return {'items': results, "chunk_index": new_chunk_index}
+        
+    return {'items': results_trunc, "chunk_index": new_chunk_index}
 
 
 def get_dqmSources():
