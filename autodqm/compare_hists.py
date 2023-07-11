@@ -10,7 +10,6 @@ from autodqm import cfg
 from autodqm.histpair import HistPair
 import plotly
 import numpy as np
-import threading
 import multiprocessing as mp
 
 def process(chunk_index, chunk_size, config_dir,
