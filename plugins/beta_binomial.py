@@ -6,7 +6,6 @@ from autodqm.plugin_results import PluginResults
 import scipy.stats as stats
 from scipy.special import gammaln
 import plotly.graph_objects as go
-import base64
 from plotly.subplots import make_subplots
 from plugins.pullvals import normalize_rows
 
@@ -148,7 +147,7 @@ def beta_binomial(histpair, pull_cap=15, chi2_cut=10, pull_cut=10, min_entries=1
             yAxisTitle = data_hist_orig.axes[1]._bases[0]._members["fTitle"]
         else:
             yAxisTitle = ""
-        plotTitle = histpair.data_name + " beta-binomial  |  data: " + str(histpair.data_run) + " & ref: " + ref_runs_str + " AutoDQM "
+        plotTitle = histpair.data_name + " beta-binomial  |  data: " + str(histpair.data_run) + " & ref: " + ref_runs_str 
     
         #Plotly doesn't support #circ, #theta, #phi but it does support unicode
         xAxisTitle = xAxisTitle.replace("#circ", "\u00B0").replace("#theta","\u03B8").replace("#phi","\u03C6").replace("#eta","\u03B7")
